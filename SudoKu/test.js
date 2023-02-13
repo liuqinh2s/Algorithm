@@ -52,7 +52,9 @@ class DancingLinks {
         while (p !== head) {
             // console.log(p.row);
             this.ans.push(p.row);
-            this.isAllOne = this.getMatrixWidth(head) === this.getMatrixWidth(p);
+            const matrixWidth = this.getMatrixWidth(head);
+            console.log(matrixWidth);
+            this.isAllOne = matrixWidth === this.getMatrixWidth(p);
             // 删除操作
             const deleteNodes = this.remove(p, head);
             this.deleteNodes.push(deleteNodes);
