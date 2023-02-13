@@ -26,15 +26,15 @@ enum Direction {
   horizontal = "horizontal",
 }
 
-class DancingLinks {
+export class DancingLinks {
   head; // 表头
   columnHeadArray; // 列头
   rowHeadArray; // 行头
   deleteNodes = []; // 删除的节点
   ans: Array<number> = []; // 答案记录
   isAllOne: boolean = false; // 最后一次删除的行是否全1
-  constructor(X: Array<number>, S: Array<Array<number>>) {
-    const matrix = this.newMatrix(X, S);
+
+  matrix(matrix: Array<Array<0 | 1>>) {
     const head = this.build(matrix);
     const hasAns = this.dance(head);
     if (hasAns) {
@@ -43,7 +43,15 @@ class DancingLinks {
       this.ans = [];
       console.log("No Answer");
     }
+    return this;
   }
+
+  set(X: Array<number>, S: Array<Array<number>>) {
+    const matrix = this.newMatrix(X, S);
+    this.matrix(matrix);
+    return this;
+  }
+
   /**
    * 递归缩小问题规模
    * @param head 表头
@@ -573,7 +581,7 @@ function test() {
   for (let i = 0; i < testData.length; i++) {
     const { input, output } = testData[i];
     const { X, S } = input;
-    const dancingLinks = new DancingLinks(X, S);
+    const dancingLinks = new DancingLinks().set(X, S);
     if (!arrayIsEqual(dancingLinks.ans, output)) {
       console.error(
         input,
