@@ -59,6 +59,7 @@ class DancingLinks {
      */
     dance(head) {
         if (head.right === head || head.down === head) {
+            console.log('矩阵为空:', '宽是0:', head.right === head, '高是0:', head.down === head);
             // 矩阵为空
             if (this.isAllOne) {
                 return true;
@@ -72,7 +73,7 @@ class DancingLinks {
             // console.log(p.row);
             this.ans.push(p.row);
             const matrixWidth = this.getMatrixWidth(head);
-            console.log(matrixWidth);
+            console.log(matrixWidth, this.ans);
             this.isAllOne = matrixWidth === this.getMatrixWidth(p);
             // 删除操作
             const deleteNodes = this.remove(p, head);
