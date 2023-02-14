@@ -10,12 +10,13 @@ var Direction;
     Direction["horizontal"] = "horizontal";
 })(Direction || (Direction = {}));
 class DancingLinks {
-    constructor() {
+    constructor(sudoKu) {
         this.deleteNodes = []; // 删除的节点
         this.ans = []; // 答案记录
         this.isAllOne = false; // 最后一次删除的行是否全1
+        this.sudoKu = sudoKu;
     }
-    matrix(matrix) {
+    inputMatrix(matrix) {
         const head = this.build(matrix);
         const hasAns = this.dance(head);
         if (hasAns) {
@@ -27,9 +28,9 @@ class DancingLinks {
         }
         return this;
     }
-    set(X, S) {
+    inputSet(X, S) {
         const matrix = this.newMatrix(X, S);
-        this.matrix(matrix);
+        this.inputMatrix(matrix);
         return this;
     }
     /**
@@ -39,7 +40,9 @@ class DancingLinks {
      */
     dance(head) {
         if (head.right === head || head.down === head) {
-            console.log('矩阵为空:', '宽是0:', head.right === head, '高是0:', head.down === head);
+            console.log("矩阵为空:", "宽是0:", head.right === head, "高是0:", head.down === head);
+            console.log("目前答案:", this.ans);
+            SudoKu.exactCoverMatrix2SudoKuMatrix(this.matrix, this.ans, this.sudoKu);
             // 矩阵为空
             if (this.isAllOne) {
                 return true;
@@ -58,7 +61,14 @@ class DancingLinks {
             // 删除操作
             const deleteNodes = this.remove(p, head);
             this.deleteNodes.push(deleteNodes);
-            console.log('删除后:', matrixWidth, this.getMatrixHeight(head), this.ans);
+            // console.log(
+            //   "删除后:",
+            //   "宽:",
+            //   this.getMatrixWidth(head),
+            //   " 高:",
+            //   this.getMatrixHeight(head),
+            //   this.ans
+            // );
             // this.showMatrix(head);
             if (this.dance(head)) {
                 res = true;
@@ -67,7 +77,14 @@ class DancingLinks {
             this.ans.pop();
             // 恢复操作
             this.recover(this.deleteNodes.pop());
-            console.log('恢复后:', this.getMatrixWidth(head), this.getMatrixHeight(head), this.ans);
+            // console.log(
+            //   "恢复后:",
+            //   "宽:",
+            //   this.getMatrixWidth(head),
+            //   " 高:",
+            //   this.getMatrixHeight(head),
+            //   this.ans
+            // );
             // this.showMatrix(head);
             p = p.down;
         }
@@ -80,6 +97,7 @@ class DancingLinks {
      * @param column 列数
      */
     build(matrix) {
+        this.matrix = matrix;
         // 先初始化一个表头元素
         const head = newHead();
         // 一组列头元素和行头元素
@@ -524,7 +542,7 @@ class SudoKu {
                     const section3 = new Array(81).fill(0);
                     section3[j * 9 + k - 1] = 1;
                     const section4 = new Array(81).fill(0);
-                    section4[Math.floor(i / 3) + Math.floor(j / 3) * 3 + k - 1] = 1;
+                    section4[(Math.floor(i / 3) + Math.floor(j / 3) * 3) * 9 + k - 1] = 1;
                     matrix.push([...section1, ...section2, ...section3, ...section4]);
                 }
             }
@@ -533,10 +551,10 @@ class SudoKu {
     }
     /**
      * 把数独图转为精确覆盖问题01矩阵的一行
-     * @param suduKu
+     * @param sudoKu
      * @returns
      */
-    sudoKu2ExactCoverLine(suduKu) {
+    sudoKu2ExactCoverLine(sudoKu) {
         const section1 = new Array(81).fill(0);
         const section2 = new Array(81).fill(0);
         const section3 = new Array(81).fill(0);
@@ -545,12 +563,12 @@ class SudoKu {
         for (let i = 0; i < 9; i++) {
             // 列
             for (let j = 0; j < 9; j++) {
-                const k = suduKu[i][j];
+                const k = sudoKu[i][j];
                 if (k > 0 && k <= 9) {
                     section1[i * 9 + j] = 1;
                     section2[i * 9 + k - 1] = 1;
                     section3[j * 9 + k - 1] = 1;
-                    section4[Math.floor(i / 3) + Math.floor(j / 3) * 3 + k - 1] = 1;
+                    section4[(Math.floor(i / 3) + Math.floor(j / 3) * 3) * 9 + k - 1] = 1;
                 }
             }
         }
@@ -558,38 +576,60 @@ class SudoKu {
     }
     /**
      * 根据精确覆盖问题01矩阵和答案反推数独图
-     * @param suduKu
+     * @param sudoKu
      * @param matrix
      * @param ans
      */
-    exactCoverMatrix2SudoKuMatrix(suduKu, matrix, ans) {
+    static exactCoverMatrix2SudoKuMatrix(matrix, ans, sudoKu) {
+        if (!sudoKu) {
+            sudoKu = SudoKu.buildEmptySudoKu();
+        }
+        else {
+            sudoKu = JSON.parse(JSON.stringify(sudoKu));
+        }
         for (let i = 1; i < ans.length; i++) {
             const line = matrix[ans[i]];
             let row, column;
             for (let j = 0; j < 81; j++) {
+                // 从坐标区域找某个坐标是否填了数字
                 if (line[j] === 1) {
                     row = Math.floor(j / 9);
                     column = j % 9;
                 }
             }
             let number;
+            // 从行区域找某行填了哪个数字
             for (let j = 81 + row * 9; j < 81 + row * 9 + 9; j++) {
                 if (line[j] === 1) {
-                    number = j - 81 - row * 9;
+                    number = j - 81 - row * 9 + 1;
                 }
             }
-            suduKu[row][column] = number;
+            if (number > 0) {
+                sudoKu[row][column] = number;
+            }
         }
+        console.log("数独图:", JSON.stringify(sudoKu));
     }
-    constructor(suduKu) {
-        const matrix = [this.sudoKu2ExactCoverLine(suduKu)];
+    /**
+     * 创建空的数独
+     */
+    static buildEmptySudoKu() {
+        let res = [];
+        for (let i = 0; i < 9; i++) {
+            res.push(new Array(9).fill(0));
+        }
+        return res;
+    }
+    constructor(sudoKu) {
+        const matrix = [this.sudoKu2ExactCoverLine(sudoKu)];
         this.build(matrix);
-        const dancingLinks = new DancingLinks().matrix(matrix);
-        this.exactCoverMatrix2SudoKuMatrix(suduKu, matrix, dancingLinks.ans);
-        console.log(suduKu);
+        const dancingLinks = new DancingLinks(sudoKu).inputMatrix(matrix);
+        SudoKu.exactCoverMatrix2SudoKuMatrix(matrix, dancingLinks.ans, sudoKu);
+        console.log(sudoKu);
     }
 }
 function test() {
+    // 43个空格
     const testData = [
         [4, 8, 9, 5, 0, 1, 0, 2, 0],
         [7, 5, 0, 0, 0, 0, 8, 1, 0],
