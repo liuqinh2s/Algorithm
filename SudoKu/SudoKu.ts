@@ -5,7 +5,7 @@ class SudoKu {
    * 生成数独解空间：729*324的01矩阵
    * 用舞蹈链来表示这个矩阵
    */
-  build(matrix: Array<Array<0 | 1>>): Array<Array<0 | 1>> {
+  static build(matrix: Array<Array<0 | 1>>): Array<Array<0 | 1>> {
     // 行
     for (let i = 0; i < 9; i++) {
       // 列
@@ -32,7 +32,7 @@ class SudoKu {
    * @param sudoKu
    * @returns
    */
-  sudoKu2ExactCoverLine(sudoKu: Array<Array<number>>) {
+  static sudoKu2ExactCoverLine(sudoKu: Array<Array<number>>) {
     const section1 = new Array(81).fill(0);
     const section2 = new Array(81).fill(0);
     const section3 = new Array(81).fill(0);
@@ -63,7 +63,7 @@ class SudoKu {
     matrix: Array<Array<0 | 1>>,
     ans: number[],
     sudoKu?: Array<Array<number>>
-  ) {
+  ):Array<Array<number>> {
     if (!sudoKu) {
       sudoKu = SudoKu.buildEmptySudoKu();
     } else {
@@ -91,13 +91,13 @@ class SudoKu {
       }
     }
     console.log("数独图:", JSON.stringify(sudoKu));
-    return sudoKu;
+    return sudoKu as number[][];
   }
 
   /**
    * 创建空的数独
    */
-  static buildEmptySudoKu() {
+  static buildEmptySudoKu(): Array<Array<number>> {
     let res: any = [];
     for (let i = 0; i < 9; i++) {
       res.push(new Array(9).fill(0));
@@ -105,9 +105,23 @@ class SudoKu {
     return res;
   }
 
+  /**
+   * 判断一幅完成的数独图是否是正确的
+   * @param sudoKu 
+   */
+  static verify(sudoKu: Array<Array<number>>){
+    const arr = SudoKu.sudoKu2ExactCoverLine(sudoKu);
+    for(let i=0;i<arr.length;i++){
+      if(arr[i]!==1){
+        return false;
+      }
+    }
+    return true;
+  }
+
   constructor(sudoKu: Array<Array<number>>) {
-    const matrix = [this.sudoKu2ExactCoverLine(sudoKu)];
-    this.build(matrix);
+    const matrix = [SudoKu.sudoKu2ExactCoverLine(sudoKu)];
+    SudoKu.build(matrix);
     const dancingLinks = new DancingLinks(sudoKu).inputMatrix(matrix);
     const res = SudoKu.exactCoverMatrix2SudoKuMatrix(
       matrix,
@@ -115,6 +129,11 @@ class SudoKu {
       sudoKu
     );
     console.log(res);
+    if(SudoKu.verify(res)){
+      console.log('数独答案验证通过!');
+    }else{
+      console.log('数独答案不正确!');
+    }
   }
 }
 

@@ -4,7 +4,7 @@ class SudoKu {
      * 生成数独解空间：729*324的01矩阵
      * 用舞蹈链来表示这个矩阵
      */
-    build(matrix) {
+    static build(matrix) {
         // 行
         for (let i = 0; i < 9; i++) {
             // 列
@@ -30,7 +30,7 @@ class SudoKu {
      * @param sudoKu
      * @returns
      */
-    sudoKu2ExactCoverLine(sudoKu) {
+    static sudoKu2ExactCoverLine(sudoKu) {
         const section1 = new Array(81).fill(0);
         const section2 = new Array(81).fill(0);
         const section3 = new Array(81).fill(0);
@@ -97,12 +97,31 @@ class SudoKu {
         }
         return res;
     }
+    /**
+     * 判断一幅完成的数独图是否是正确的
+     * @param sudoKu
+     */
+    static verify(sudoKu) {
+        const arr = SudoKu.sudoKu2ExactCoverLine(sudoKu);
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] !== 1) {
+                return false;
+            }
+        }
+        return true;
+    }
     constructor(sudoKu) {
-        const matrix = [this.sudoKu2ExactCoverLine(sudoKu)];
-        this.build(matrix);
+        const matrix = [SudoKu.sudoKu2ExactCoverLine(sudoKu)];
+        SudoKu.build(matrix);
         const dancingLinks = new DancingLinks(sudoKu).inputMatrix(matrix);
         const res = SudoKu.exactCoverMatrix2SudoKuMatrix(matrix, dancingLinks.ans, sudoKu);
         console.log(res);
+        if (SudoKu.verify(res)) {
+            console.log('数独答案验证通过!');
+        }
+        else {
+            console.log('数独答案不正确!');
+        }
     }
 }
 function test() {
