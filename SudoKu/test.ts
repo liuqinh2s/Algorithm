@@ -73,11 +73,12 @@ class DancingLinks {
             // console.log(p.row);
             this.ans.push(p.row);
             const matrixWidth = this.getMatrixWidth(head);
-            console.log(matrixWidth, this.ans);
             this.isAllOne = matrixWidth === this.getMatrixWidth(p);
             // 删除操作
             const deleteNodes = this.remove(p, head);
             this.deleteNodes.push(deleteNodes);
+            console.log('删除后:', matrixWidth, this.getMatrixHeight(head), this.ans);
+            // this.showMatrix(head);
             if (this.dance(head)) {
                 res = true;
                 break;
@@ -85,7 +86,8 @@ class DancingLinks {
             this.ans.pop();
             // 恢复操作
             this.recover(this.deleteNodes.pop());
-            this.showMatrix(head);
+            console.log('恢复后:', this.getMatrixWidth(head), this.getMatrixHeight(head), this.ans);
+            // this.showMatrix(head);
             p = p.down;
         }
         return res;
@@ -128,7 +130,7 @@ class DancingLinks {
         this.head = head;
         this.columnHeadArray = columnHeadArray;
         this.rowHeadArray = rowHeadArray;
-        this.showMatrix(head);
+        // this.showMatrix(head);
         return head;
 
         /**
@@ -245,7 +247,7 @@ class DancingLinks {
     remove(p, head) {
         // 删除相应的列
         const nodes1 = this.removeAllColumn(p);
-        this.showMatrix(head);
+        // this.showMatrix(head);
         // 删除相应行
         const nodes2: any = [...nodes1];
         for (let i = 0; i < nodes1.length; i++) {
@@ -254,7 +256,7 @@ class DancingLinks {
                 nodes2.push(...nodes);
             }
         }
-        this.showMatrix(head);
+        // this.showMatrix(head);
         return [...new Set(nodes2)];
     }
     /**
@@ -484,7 +486,7 @@ class DancingLinks {
             }
             p = p.down;
         }
-        // console.log(res);
+        console.log(res);
     }
     /**
      * 获取链表长度
