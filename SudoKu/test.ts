@@ -42,7 +42,7 @@ class DancingLinks {
 
   inputMatrix(matrix: Array<Array<0 | 1>>) {
     const head = this.build(matrix);
-    const hasAns = this.dance(head);
+    const hasAns = this.dance(head, head.down);
     if (hasAns) {
       console.log("答案:", this.ans);
     } else {
@@ -61,19 +61,20 @@ class DancingLinks {
   /**
    * 递归缩小问题规模
    * @param head 表头
+   * @param p 选中某行，默认选择1最少的列的头一行
    * @returns
    */
-  dance(head) {
+  dance(head, p?) {
     if (head.right === head || head.down === head) {
-      console.log(
-        "矩阵为空:",
-        "宽是0:",
-        head.right === head,
-        "高是0:",
-        head.down === head
-      );
-      console.log("目前答案:", this.ans);
-      SudoKu.exactCoverMatrix2SudoKuMatrix(this.matrix, this.ans, this.sudoKu);
+      // console.log(
+      //   "矩阵为空:",
+      //   "宽是0:",
+      //   head.right === head,
+      //   "高是0:",
+      //   head.down === head
+      // );
+      // console.log("目前答案:", this.ans);
+      // SudoKu.exactCoverMatrix2SudoKuMatrix(this.matrix, this.ans, this.sudoKu);
       // 矩阵为空
       if (this.isAllOne) {
         return true;
@@ -81,7 +82,11 @@ class DancingLinks {
         return false;
       }
     }
-    let p = head.down;
+    if (!p) {
+      const columnHead = this.getMinColumn(head);
+      p = this.getRowHead(columnHead.down);
+    }
+
     let res = false;
     while (p !== head) {
       // console.log(p.row);
@@ -91,15 +96,15 @@ class DancingLinks {
       // 删除操作
       const deleteNodes = this.remove(p, head);
       this.deleteNodes.push(deleteNodes);
-      // console.log(
-      //   "删除后:",
-      //   "宽:",
-      //   this.getMatrixWidth(head),
-      //   " 高:",
-      //   this.getMatrixHeight(head),
-      //   this.ans
-      // );
-      // this.showMatrix(head);
+      console.log(
+        "删除后:",
+        "宽:",
+        this.getMatrixWidth(head),
+        " 高:",
+        this.getMatrixHeight(head),
+        this.ans
+      );
+      this.showMatrix(head);
       if (this.dance(head)) {
         res = true;
         break;
@@ -646,6 +651,7 @@ class SudoKu {
       }
     }
     console.log("数独图:", JSON.stringify(sudoKu));
+    return sudoKu;
   }
 
   /**
@@ -663,8 +669,12 @@ class SudoKu {
     const matrix = [this.sudoKu2ExactCoverLine(sudoKu)];
     this.build(matrix);
     const dancingLinks = new DancingLinks(sudoKu).inputMatrix(matrix);
-    SudoKu.exactCoverMatrix2SudoKuMatrix(matrix, dancingLinks.ans, sudoKu);
-    console.log(sudoKu);
+    const res = SudoKu.exactCoverMatrix2SudoKuMatrix(
+      matrix,
+      dancingLinks.ans,
+      sudoKu
+    );
+    console.log(res);
   }
 }
 
