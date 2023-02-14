@@ -3,44 +3,20 @@
  * 1. 只存1节点（稀疏矩阵）
  * 2. 辅助节点：总表头head（一个节点，可以看做是整个表格的起点），列头columnHead（每一列都有一个列头节点），行头rowHead（每一行都有一个行头节点）
  */
-
-/**
- * 舞蹈链节点
- * 总表头head没有row和column属性
- * 行头没有column属性
- * 列头没有row属性
- * 数据节点必须有row和column属性
- */
-interface DancingLinksNode {
-  left: DancingLinksNode;
-  right: DancingLinksNode;
-  up: DancingLinksNode;
-  down: DancingLinksNode;
-  row: number;
-  column: number;
-}
-
 // 链表的遍历方向
-enum Direction {
-  vertical = "vertical",
-  horizontal = "horizontal",
-}
-
+var Direction;
+(function (Direction) {
+  Direction["vertical"] = "vertical";
+  Direction["horizontal"] = "horizontal";
+})(Direction || (Direction = {}));
 class DancingLinks {
-  sudoKu; // 数独矩阵
-  matrix; // 矩阵
-  head; // 表头
-  columnHeadArray; // 列头
-  rowHeadArray; // 行头
-  deleteNodes = []; // 删除的节点
-  ans: Array<number> = []; // 答案记录
-  isAllOne: boolean = false; // 最后一次删除的行是否全1
-
-  constructor(sudoKu?: Array<Array<number>>) {
+  constructor(sudoKu) {
+    this.deleteNodes = []; // 删除的节点
+    this.ans = []; // 答案记录
+    this.isAllOne = false; // 最后一次删除的行是否全1
     this.sudoKu = sudoKu;
   }
-
-  inputMatrix(matrix: Array<Array<0 | 1>>) {
+  inputMatrix(matrix) {
     const head = this.build(matrix);
     const hasAns = this.dance(head, head.down);
     if (hasAns) {
@@ -51,20 +27,18 @@ class DancingLinks {
     }
     return this;
   }
-
-  inputSet(X: Array<number>, S: Array<Array<number>>) {
+  inputSet(X, S) {
     const matrix = this.newMatrix(X, S);
     this.inputMatrix(matrix);
     return this;
   }
-
   /**
    * 递归缩小问题规模
    * @param head 表头
    * @param p 选中某行，默认选择1最少的列的头一行
    * @returns
    */
-  dance(head, p?) {
+  dance(head, p) {
     if (head.right === head || head.down === head) {
       // console.log(
       //   "矩阵为空:",
@@ -86,7 +60,6 @@ class DancingLinks {
       const columnHead = this.getMinColumn(head);
       p = this.getRowHead(columnHead.down);
     }
-
     let res = false;
     while (p !== head) {
       // console.log(p.row);
@@ -131,7 +104,7 @@ class DancingLinks {
    * @param row 行数
    * @param column 列数
    */
-  build(matrix: Array<Array<1 | 0>>) {
+  build(matrix) {
     this.matrix = matrix;
     // 先初始化一个表头元素
     const head = newHead();
@@ -141,7 +114,7 @@ class DancingLinks {
     for (let i = 0; i < matrix.length; i++) {
       for (let j = 0; j < matrix[i].length; j++) {
         if (matrix[i][j] == 1) {
-          const node: any = {
+          const node = {
             row: i,
             column: j,
             up: columnHeadArray[j].up,
@@ -166,12 +139,11 @@ class DancingLinks {
     this.rowHeadArray = rowHeadArray;
     // this.showMatrix(head);
     return head;
-
     /**
      * 生成一个表头节点
      */
     function newHead() {
-      const head: any = {
+      const head = {
         right: null,
         left: null,
         up: null,
@@ -186,10 +158,10 @@ class DancingLinks {
     /**
      * 生成列头
      */
-    function newColumnHead(matrix: Array<Array<1 | 0>>, head) {
-      const columnHeadArray: Array<any> = [];
+    function newColumnHead(matrix, head) {
+      const columnHeadArray = [];
       for (let i = 0; i < matrix[0].length; i++) {
-        const node: any = {
+        const node = {
           column: i,
           right: head,
           left: head.left,
@@ -207,10 +179,10 @@ class DancingLinks {
     /**
      * 生成行头
      */
-    function newRowHead(matrix: Array<Array<1 | 0>>, head) {
-      const rowHeadArray: Array<any> = [];
+    function newRowHead(matrix, head) {
+      const rowHeadArray = [];
       for (let i = 0; i < matrix.length; i++) {
-        const node: any = {
+        const node = {
           row: i,
           right: null,
           left: null,
@@ -226,7 +198,7 @@ class DancingLinks {
       return rowHeadArray;
     }
   }
-  newMatrix(X: Array<number>, S: Array<Array<number>>) {
+  newMatrix(X, S) {
     let res = [];
     for (let i = 0; i < S.length; i++) {
       let row = new Array(X.length).fill(0);
@@ -283,7 +255,7 @@ class DancingLinks {
     const nodes1 = this.removeAllColumn(p);
     // this.showMatrix(head);
     // 删除相应行
-    const nodes2: any = [...nodes1];
+    const nodes2 = [...nodes1];
     for (let i = 0; i < nodes1.length; i++) {
       if (!nodes1[i].hasOwnProperty("row")) {
         const nodes = this.removeAllRow(nodes1[i]);
@@ -297,10 +269,10 @@ class DancingLinks {
    * 删除某行关联的所有列
    * @param node 一行中的某个节点
    */
-  removeAllColumn(node: DancingLinksNode) {
+  removeAllColumn(node) {
     // console.log("removeAllColumn");
     let p = this.rowHeadArray[node.row];
-    const res: any = [];
+    const res = [];
     while (true) {
       const deleteNodes = this.removeColumn(p);
       res.push(...deleteNodes);
@@ -315,10 +287,10 @@ class DancingLinks {
    * 删除某列关联的所有行
    * @param node
    */
-  removeAllRow(node: DancingLinksNode) {
+  removeAllRow(node) {
     // console.log("removeAllRow");
     let p = this.columnHeadArray[node.column];
-    const res: any = [];
+    const res = [];
     while (true) {
       const deleteNodes = this.removeRow(p);
       res.push(...deleteNodes);
@@ -343,7 +315,7 @@ class DancingLinks {
     }
     const columnHead = this.columnHeadArray[node.column];
     let p = columnHead;
-    const res: any = [];
+    const res = [];
     while (true) {
       if (p.left.right === p && p.right.left === p) {
         p.left.right = p.right;
@@ -371,7 +343,7 @@ class DancingLinks {
     }
     const rowHead = this.rowHeadArray[node.row];
     let p = rowHead;
-    const res: any = [];
+    const res = [];
     while (true) {
       if (p.up.down === p && p.down.up === p) {
         p.up.down = p.down;
@@ -459,7 +431,7 @@ class DancingLinks {
    * 随便给定一个非表头节点，返回列头
    * @param node
    */
-  getColumnHead(node: DancingLinksNode) {
+  getColumnHead(node) {
     let p = node;
     while (p.hasOwnProperty("row")) {
       p = p.down;
@@ -471,7 +443,7 @@ class DancingLinks {
    * @param node
    * @returns
    */
-  getRowHead(node: DancingLinksNode) {
+  getRowHead(node) {
     let p = node;
     while (p.hasOwnProperty("column")) {
       p = p.right;
@@ -482,7 +454,7 @@ class DancingLinks {
    * 返回列头的坐标
    * @param columnHead
    */
-  getColumnIndex(columnHead: DancingLinksNode) {
+  getColumnIndex(columnHead) {
     let p = this.head;
     let index = -1;
     while (p !== columnHead) {
@@ -496,7 +468,7 @@ class DancingLinks {
    * @param rowHead
    * @returns
    */
-  getRowIndex(rowHead: DancingLinksNode) {
+  getRowIndex(rowHead) {
     let p = this.head;
     let index = -1;
     while (p !== rowHead) {
@@ -511,7 +483,7 @@ class DancingLinks {
    */
   showMatrix(head) {
     let p = head.down;
-    let res: any = [];
+    let res = [];
     while (p !== head) {
       const rowCount = this.getMatrixWidth(head);
       if (rowCount > 0) {
@@ -526,7 +498,7 @@ class DancingLinks {
    * 获取链表长度
    * @param node 当前行的某个节点
    */
-  getLinkedListLength(node, direction: Direction) {
+  getLinkedListLength(node, direction) {
     // console.log("getLinkedListLength");
     if (!node) {
       return 0;
@@ -559,139 +531,204 @@ class DancingLinks {
     return this.getLinkedListLength(head, Direction.vertical) - 1;
   }
 }
+function test() {
+  const testData = [
+    {
+      input: {
+        X: [1, 3, 5, 8, 9, 17, 119],
+        S: [
+          [5, 9, 17],
+          [1, 8, 119],
+          [3, 5, 17],
+          [1, 8],
+          [3, 119],
+          [8, 9, 119],
+        ],
+      },
+      output: [0, 3, 4],
+    },
+    {
+      input: {
+        X: [1, 2, 3, 4, 5, 6],
+        S: [
+          [1, 3, 5],
+          [2, 4],
+          [2, 3, 4, 5, 6],
+          [2, 4, 6],
+        ],
+      },
+      output: [0, 3],
+    },
+    {
+      input: {
+        X: [1, 2, 3, 4, 5, 6, 7],
+        S: [
+          [1, 4, 7],
+          [1, 4],
+          [4, 5, 7],
+          [3, 5, 6],
+          [2, 3, 6, 7],
+          [2, 7],
+        ],
+      },
+      output: [1, 3, 5],
+    },
+    {
+      input: {
+        X: [1, 2, 3, 4, 5, 6, 7],
+        S: [
+          [1, 4, 7],
+          [1, 5],
+          [4, 5, 7],
+          [3, 5, 6],
+          [2, 3, 6, 7],
+          [2, 7],
+        ],
+      },
+      output: [],
+    },
+  ];
+  for (let i = 0; i < testData.length; i++) {
+    const { input, output } = testData[i];
+    const { X, S } = input;
+    const dancingLinks = new DancingLinks().inputSet(X, S);
+    if (!arrayIsEqual(dancingLinks.ans, output)) {
+      console.error(
+        input,
+        "\n期望输出:\n",
+        output,
+        "\n实际输出:\n",
+        dancingLinks
+      );
+      return;
+    }
+  }
+  console.log("AC");
+  function arrayIsEqual(arr1, arr2) {
+    return JSON.stringify(arr1.sort()) === JSON.stringify(arr2.sort());
+  }
+}
+test();
 
 class SudoKu {
-  /**
-   * 生成数独解空间：729*324的01矩阵
-   * 用舞蹈链来表示这个矩阵
-   */
-  build(matrix: Array<Array<0 | 1>>): Array<Array<0 | 1>> {
-    // 行
-    for (let i = 0; i < 9; i++) {
-      // 列
-      for (let j = 0; j < 9; j++) {
-        // 9个数
-        for (let k = 1; k <= 9; k++) {
-          const section1 = new Array(81).fill(0);
-          section1[i * 9 + j] = 1;
-          const section2 = new Array(81).fill(0);
-          section2[i * 9 + k - 1] = 1;
-          const section3 = new Array(81).fill(0);
-          section3[j * 9 + k - 1] = 1;
-          const section4 = new Array(81).fill(0);
-          section4[(Math.floor(i / 3) + Math.floor(j / 3) * 3) * 9 + k - 1] = 1;
-          matrix.push([...section1, ...section2, ...section3, ...section4]);
+    /**
+     * 生成数独解空间：729*324的01矩阵
+     * 用舞蹈链来表示这个矩阵
+     */
+    build(matrix) {
+        // 行
+        for (let i = 0; i < 9; i++) {
+            // 列
+            for (let j = 0; j < 9; j++) {
+                // 9个数
+                for (let k = 1; k <= 9; k++) {
+                    const section1 = new Array(81).fill(0);
+                    section1[i * 9 + j] = 1;
+                    const section2 = new Array(81).fill(0);
+                    section2[i * 9 + k - 1] = 1;
+                    const section3 = new Array(81).fill(0);
+                    section3[j * 9 + k - 1] = 1;
+                    const section4 = new Array(81).fill(0);
+                    section4[(Math.floor(i / 3) + Math.floor(j / 3) * 3) * 9 + k - 1] = 1;
+                    matrix.push([...section1, ...section2, ...section3, ...section4]);
+                }
+            }
         }
-      }
+        return matrix;
     }
-    return matrix;
-  }
-
-  /**
-   * 把数独图转为精确覆盖问题01矩阵的一行
-   * @param sudoKu
-   * @returns
-   */
-  sudoKu2ExactCoverLine(sudoKu: Array<Array<number>>) {
-    const section1 = new Array(81).fill(0);
-    const section2 = new Array(81).fill(0);
-    const section3 = new Array(81).fill(0);
-    const section4 = new Array(81).fill(0);
-    // 行
-    for (let i = 0; i < 9; i++) {
-      // 列
-      for (let j = 0; j < 9; j++) {
-        const k = sudoKu[i][j];
-        if (k > 0 && k <= 9) {
-          section1[i * 9 + j] = 1;
-          section2[i * 9 + k - 1] = 1;
-          section3[j * 9 + k - 1] = 1;
-          section4[(Math.floor(i / 3) + Math.floor(j / 3) * 3) * 9 + k - 1] = 1;
+    /**
+     * 把数独图转为精确覆盖问题01矩阵的一行
+     * @param sudoKu
+     * @returns
+     */
+    sudoKu2ExactCoverLine(sudoKu) {
+        const section1 = new Array(81).fill(0);
+        const section2 = new Array(81).fill(0);
+        const section3 = new Array(81).fill(0);
+        const section4 = new Array(81).fill(0);
+        // 行
+        for (let i = 0; i < 9; i++) {
+            // 列
+            for (let j = 0; j < 9; j++) {
+                const k = sudoKu[i][j];
+                if (k > 0 && k <= 9) {
+                    section1[i * 9 + j] = 1;
+                    section2[i * 9 + k - 1] = 1;
+                    section3[j * 9 + k - 1] = 1;
+                    section4[(Math.floor(i / 3) + Math.floor(j / 3) * 3) * 9 + k - 1] = 1;
+                }
+            }
         }
-      }
+        return [...section1, ...section2, ...section3, ...section4];
     }
-    return [...section1, ...section2, ...section3, ...section4];
-  }
-
-  /**
-   * 根据精确覆盖问题01矩阵和答案反推数独图
-   * @param sudoKu
-   * @param matrix
-   * @param ans
-   */
-  static exactCoverMatrix2SudoKuMatrix(
-    matrix: Array<Array<0 | 1>>,
-    ans: number[],
-    sudoKu?: Array<Array<number>>
-  ) {
-    if (!sudoKu) {
-      sudoKu = SudoKu.buildEmptySudoKu();
-    } else {
-      sudoKu = JSON.parse(JSON.stringify(sudoKu));
-    }
-    for (let i = 1; i < ans.length; i++) {
-      const line = matrix[ans[i]];
-      let row, column;
-      for (let j = 0; j < 81; j++) {
-        // 从坐标区域找某个坐标是否填了数字
-        if (line[j] === 1) {
-          row = Math.floor(j / 9);
-          column = j % 9;
+    /**
+     * 根据精确覆盖问题01矩阵和答案反推数独图
+     * @param sudoKu
+     * @param matrix
+     * @param ans
+     */
+    static exactCoverMatrix2SudoKuMatrix(matrix, ans, sudoKu) {
+        if (!sudoKu) {
+            sudoKu = SudoKu.buildEmptySudoKu();
         }
-      }
-      let number;
-      // 从行区域找某行填了哪个数字
-      for (let j = 81 + row * 9; j < 81 + row * 9 + 9; j++) {
-        if (line[j] === 1) {
-          number = j - 81 - row * 9 + 1;
+        else {
+            sudoKu = JSON.parse(JSON.stringify(sudoKu));
         }
-      }
-      if (number > 0) {
-        sudoKu[row][column] = number;
-      }
+        for (let i = 1; i < ans.length; i++) {
+            const line = matrix[ans[i]];
+            let row, column;
+            for (let j = 0; j < 81; j++) {
+                // 从坐标区域找某个坐标是否填了数字
+                if (line[j] === 1) {
+                    row = Math.floor(j / 9);
+                    column = j % 9;
+                }
+            }
+            let number;
+            // 从行区域找某行填了哪个数字
+            for (let j = 81 + row * 9; j < 81 + row * 9 + 9; j++) {
+                if (line[j] === 1) {
+                    number = j - 81 - row * 9 + 1;
+                }
+            }
+            if (number > 0) {
+                sudoKu[row][column] = number;
+            }
+        }
+        console.log("数独图:", JSON.stringify(sudoKu));
+        return sudoKu;
     }
-    console.log("数独图:", JSON.stringify(sudoKu));
-    return sudoKu;
-  }
-
-  /**
-   * 创建空的数独
-   */
-  static buildEmptySudoKu() {
-    let res: any = [];
-    for (let i = 0; i < 9; i++) {
-      res.push(new Array(9).fill(0));
+    /**
+     * 创建空的数独
+     */
+    static buildEmptySudoKu() {
+        let res = [];
+        for (let i = 0; i < 9; i++) {
+            res.push(new Array(9).fill(0));
+        }
+        return res;
     }
-    return res;
-  }
-
-  constructor(sudoKu: Array<Array<number>>) {
-    const matrix = [this.sudoKu2ExactCoverLine(sudoKu)];
-    this.build(matrix);
-    const dancingLinks = new DancingLinks(sudoKu).inputMatrix(matrix);
-    const res = SudoKu.exactCoverMatrix2SudoKuMatrix(
-      matrix,
-      dancingLinks.ans,
-      sudoKu
-    );
-    console.log(res);
-  }
+    constructor(sudoKu) {
+        const matrix = [this.sudoKu2ExactCoverLine(sudoKu)];
+        this.build(matrix);
+        const dancingLinks = new DancingLinks(sudoKu).inputMatrix(matrix);
+        const res = SudoKu.exactCoverMatrix2SudoKuMatrix(matrix, dancingLinks.ans, sudoKu);
+        console.log(res);
+    }
 }
-
-function test() {
-  // 43个空格
-  const testData = [
-    [4, 8, 9, 5, 0, 1, 0, 2, 0],
-    [7, 5, 0, 0, 0, 0, 8, 1, 0],
-    [0, 0, 0, 0, 2, 0, 5, 9, 4],
-    [0, 0, 8, 0, 9, 0, 0, 7, 5],
-    [5, 0, 0, 0, 0, 8, 0, 0, 0],
-    [0, 0, 1, 0, 0, 3, 0, 0, 0],
-    [1, 6, 0, 3, 7, 4, 0, 8, 2],
-    [0, 0, 0, 0, 0, 5, 7, 3, 6],
-    [0, 0, 3, 0, 6, 2, 4, 5, 0],
-  ];
-  new SudoKu(testData);
+function test$1() {
+    // 43个空格
+    const testData = [
+        [4, 8, 9, 5, 0, 1, 0, 2, 0],
+        [7, 5, 0, 0, 0, 0, 8, 1, 0],
+        [0, 0, 0, 0, 2, 0, 5, 9, 4],
+        [0, 0, 8, 0, 9, 0, 0, 7, 5],
+        [5, 0, 0, 0, 0, 8, 0, 0, 0],
+        [0, 0, 1, 0, 0, 3, 0, 0, 0],
+        [1, 6, 0, 3, 7, 4, 0, 8, 2],
+        [0, 0, 0, 0, 0, 5, 7, 3, 6],
+        [0, 0, 3, 0, 6, 2, 4, 5, 0],
+    ];
+    new SudoKu(testData);
 }
-
-test();
+test$1();

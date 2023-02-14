@@ -27,6 +27,8 @@ enum Direction {
 }
 
 export class DancingLinks {
+  sudoKu; // 数独矩阵
+  matrix; // 矩阵
   head; // 表头
   columnHeadArray; // 列头
   rowHeadArray; // 行头
@@ -34,9 +36,13 @@ export class DancingLinks {
   ans: Array<number> = []; // 答案记录
   isAllOne: boolean = false; // 最后一次删除的行是否全1
 
-  matrix(matrix: Array<Array<0 | 1>>) {
+  constructor(sudoKu?: Array<Array<number>>) {
+    this.sudoKu = sudoKu;
+  }
+
+  inputMatrix(matrix: Array<Array<0 | 1>>) {
     const head = this.build(matrix);
-    const hasAns = this.dance(head);
+    const hasAns = this.dance(head, head.down);
     if (hasAns) {
       console.log("答案:", this.ans);
     } else {
@@ -46,19 +52,29 @@ export class DancingLinks {
     return this;
   }
 
-  set(X: Array<number>, S: Array<Array<number>>) {
+  inputSet(X: Array<number>, S: Array<Array<number>>) {
     const matrix = this.newMatrix(X, S);
-    this.matrix(matrix);
+    this.inputMatrix(matrix);
     return this;
   }
 
   /**
    * 递归缩小问题规模
    * @param head 表头
+   * @param p 选中某行，默认选择1最少的列的头一行
    * @returns
    */
-  dance(head) {
+  dance(head, p?) {
     if (head.right === head || head.down === head) {
+      // console.log(
+      //   "矩阵为空:",
+      //   "宽是0:",
+      //   head.right === head,
+      //   "高是0:",
+      //   head.down === head
+      // );
+      // console.log("目前答案:", this.ans);
+      // SudoKu.exactCoverMatrix2SudoKuMatrix(this.matrix, this.ans, this.sudoKu);
       // 矩阵为空
       if (this.isAllOne) {
         return true;
@@ -66,15 +82,29 @@ export class DancingLinks {
         return false;
       }
     }
-    let p = head.down;
+    if (!p) {
+      const columnHead = this.getMinColumn(head);
+      p = this.getRowHead(columnHead.down);
+    }
+
     let res = false;
     while (p !== head) {
-      console.log(p.row);
+      // console.log(p.row);
       this.ans.push(p.row);
-      this.isAllOne = this.getMatrixWidth(head) === this.getMatrixWidth(p);
+      const matrixWidth = this.getMatrixWidth(head);
+      this.isAllOne = matrixWidth === this.getMatrixWidth(p);
       // 删除操作
       const deleteNodes = this.remove(p, head);
       this.deleteNodes.push(deleteNodes);
+      console.log(
+        "删除后:",
+        "宽:",
+        this.getMatrixWidth(head),
+        " 高:",
+        this.getMatrixHeight(head),
+        this.ans
+      );
+      this.showMatrix(head);
       if (this.dance(head)) {
         res = true;
         break;
@@ -82,7 +112,15 @@ export class DancingLinks {
       this.ans.pop();
       // 恢复操作
       this.recover(this.deleteNodes.pop());
-      this.showMatrix(head);
+      // console.log(
+      //   "恢复后:",
+      //   "宽:",
+      //   this.getMatrixWidth(head),
+      //   " 高:",
+      //   this.getMatrixHeight(head),
+      //   this.ans
+      // );
+      // this.showMatrix(head);
       p = p.down;
     }
     return res;
@@ -94,6 +132,7 @@ export class DancingLinks {
    * @param column 列数
    */
   build(matrix: Array<Array<1 | 0>>) {
+    this.matrix = matrix;
     // 先初始化一个表头元素
     const head = newHead();
     // 一组列头元素和行头元素
@@ -125,7 +164,7 @@ export class DancingLinks {
     this.head = head;
     this.columnHeadArray = columnHeadArray;
     this.rowHeadArray = rowHeadArray;
-    this.showMatrix(head);
+    // this.showMatrix(head);
     return head;
 
     /**
@@ -196,7 +235,7 @@ export class DancingLinks {
       }
       res.push(row);
     }
-    console.log(res);
+    // console.log(res);
     return res;
   }
   /**
@@ -205,7 +244,7 @@ export class DancingLinks {
    */
   getRow(rowHead) {
     const matrixWidth = this.getMatrixWidth(this.head);
-    console.log("matrixWidth:", matrixWidth);
+    // console.log("matrixWidth:", matrixWidth);
     if (matrixWidth < 1) {
       return [];
     }
@@ -225,7 +264,7 @@ export class DancingLinks {
    */
   getColumn(columnHead) {
     const matrixHeight = this.getMatrixHeight(this.head);
-    console.log("matrixHeight:", matrixHeight);
+    // console.log("matrixHeight:", matrixHeight);
     if (matrixHeight < 1) {
       return [];
     }
@@ -242,7 +281,7 @@ export class DancingLinks {
   remove(p, head) {
     // 删除相应的列
     const nodes1 = this.removeAllColumn(p);
-    this.showMatrix(head);
+    // this.showMatrix(head);
     // 删除相应行
     const nodes2: any = [...nodes1];
     for (let i = 0; i < nodes1.length; i++) {
@@ -251,7 +290,7 @@ export class DancingLinks {
         nodes2.push(...nodes);
       }
     }
-    this.showMatrix(head);
+    // this.showMatrix(head);
     return [...new Set(nodes2)];
   }
   /**
@@ -259,7 +298,7 @@ export class DancingLinks {
    * @param node 一行中的某个节点
    */
   removeAllColumn(node: DancingLinksNode) {
-    console.log("removeAllColumn");
+    // console.log("removeAllColumn");
     let p = this.rowHeadArray[node.row];
     const res: any = [];
     while (true) {
@@ -277,7 +316,7 @@ export class DancingLinks {
    * @param node
    */
   removeAllRow(node: DancingLinksNode) {
-    console.log("removeAllRow");
+    // console.log("removeAllRow");
     let p = this.columnHeadArray[node.column];
     const res: any = [];
     while (true) {
@@ -488,7 +527,7 @@ export class DancingLinks {
    * @param node 当前行的某个节点
    */
   getLinkedListLength(node, direction: Direction) {
-    console.log("getLinkedListLength");
+    // console.log("getLinkedListLength");
     if (!node) {
       return 0;
     }
@@ -508,7 +547,7 @@ export class DancingLinks {
    * @param head 当前行的某个节点
    */
   getMatrixWidth(head) {
-    console.log("getMatrixWidth");
+    // console.log("getMatrixWidth");
     return this.getLinkedListLength(head, Direction.horizontal) - 1;
   }
   /**
@@ -516,7 +555,7 @@ export class DancingLinks {
    * @param head 当前行的某个节点
    */
   getMatrixHeight(head) {
-    console.log("getMatrixHeight");
+    // console.log("getMatrixHeight");
     return this.getLinkedListLength(head, Direction.vertical) - 1;
   }
 }
@@ -581,7 +620,7 @@ function test() {
   for (let i = 0; i < testData.length; i++) {
     const { input, output } = testData[i];
     const { X, S } = input;
-    const dancingLinks = new DancingLinks().set(X, S);
+    const dancingLinks = new DancingLinks().inputSet(X, S);
     if (!arrayIsEqual(dancingLinks.ans, output)) {
       console.error(
         input,
