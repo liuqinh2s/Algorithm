@@ -18,8 +18,8 @@ export class DancingLinks {
     }
     inputMatrix(matrix) {
         const head = this.build(matrix);
-        const hasAns = this.dance(head, head.down);
-        if (hasAns) {
+        this.hasAns = this.dance(head, head.down);
+        if (this.hasAns) {
             console.log("答案:", this.ans);
         }
         else {

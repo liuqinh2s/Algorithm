@@ -34,6 +34,7 @@ export class DancingLinks {
   rowHeadArray; // 行头
   deleteNodes = []; // 删除的节点
   ans: Array<number> = []; // 答案记录
+  hasAns: boolean; // 是否有解
   isAllOne: boolean = false; // 最后一次删除的行是否全1
 
   constructor(sudoKu?: Array<Array<number>>) {
@@ -42,8 +43,8 @@ export class DancingLinks {
 
   inputMatrix(matrix: Array<Array<0 | 1>>) {
     const head = this.build(matrix);
-    const hasAns = this.dance(head, head.down);
-    if (hasAns) {
+    this.hasAns = this.dance(head, head.down);
+    if (this.hasAns) {
       console.log("答案:", this.ans);
     } else {
       this.ans = [];

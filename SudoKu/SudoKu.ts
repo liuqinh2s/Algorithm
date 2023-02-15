@@ -63,7 +63,7 @@ class SudoKu {
     matrix: Array<Array<0 | 1>>,
     ans: number[],
     sudoKu?: Array<Array<number>>
-  ):Array<Array<number>> {
+  ): Array<Array<number>> {
     if (!sudoKu) {
       sudoKu = SudoKu.buildEmptySudoKu();
     } else {
@@ -107,33 +107,65 @@ class SudoKu {
 
   /**
    * 判断一幅完成的数独图是否是正确的
-   * @param sudoKu 
+   * @param sudoKu
    */
-  static verify(sudoKu: Array<Array<number>>){
+  static verify(sudoKu: Array<Array<number>>) {
     const arr = SudoKu.sudoKu2ExactCoverLine(sudoKu);
-    for(let i=0;i<arr.length;i++){
-      if(arr[i]!==1){
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] !== 1) {
         return false;
       }
     }
     return true;
   }
 
-  constructor(sudoKu: Array<Array<number>>) {
+  static solve(sudoKu: Array<Array<number>>) {
     const matrix = [SudoKu.sudoKu2ExactCoverLine(sudoKu)];
     SudoKu.build(matrix);
     const dancingLinks = new DancingLinks(sudoKu).inputMatrix(matrix);
-    const res = SudoKu.exactCoverMatrix2SudoKuMatrix(
-      matrix,
-      dancingLinks.ans,
-      sudoKu
-    );
-    console.log(res);
-    if(SudoKu.verify(res)){
-      console.log('数独答案验证通过!');
-    }else{
-      console.log('数独答案不正确!');
+    if (dancingLinks.hasAns) {
+      const res = SudoKu.exactCoverMatrix2SudoKuMatrix(
+        matrix,
+        dancingLinks.ans,
+        sudoKu
+      );
+      console.log(res);
+      if (SudoKu.verify(res)) {
+        console.log("数独答案验证通过!");
+        return res;
+      } else {
+        console.log("数独答案不正确!");
+        return null;
+      }
+    } else {
+      return null;
     }
+  }
+
+  /**
+   * 随机放入11个数，1到9，然后1到2，然后求解，得到一幅随机数独完成图（有解的概率约99.7%）
+   */
+  static getCompleteSudoKu(): Array<Array<number>> {
+    const sudoKu = SudoKu.buildEmptySudoKu();
+    for (let i = 0; i < 11; i++) {
+      const row = SudoKu.random0To8();
+      const column = SudoKu.random0To8();
+      sudoKu[row][column] = (i % 9) + 1;
+    }
+    const res = SudoKu.solve(sudoKu);
+    return res ? res : SudoKu.getCompleteSudoKu();
+  }
+
+  /**
+   * 通过一个完整的数独图，挖洞生成一个简单的数独图
+   */
+  static getEasySudoKu(): Array<Array<number>> {}
+
+  /**
+   * 随机返回0到8
+   */
+  static random0To8() {
+    return Math.floor(Math.random() * 9);
   }
 }
 
@@ -150,7 +182,8 @@ function test() {
     [0, 0, 0, 0, 0, 5, 7, 3, 6],
     [0, 0, 3, 0, 6, 2, 4, 5, 0],
   ];
-  new SudoKu(testData);
+  // SudoKu.solve(testData);
+  console.log("随机生成一个数独:", SudoKu.getSudoKu());
 }
 
 test();

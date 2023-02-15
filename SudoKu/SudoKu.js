@@ -110,18 +110,46 @@ class SudoKu {
         }
         return true;
     }
-    constructor(sudoKu) {
+    static solve(sudoKu) {
         const matrix = [SudoKu.sudoKu2ExactCoverLine(sudoKu)];
         SudoKu.build(matrix);
         const dancingLinks = new DancingLinks(sudoKu).inputMatrix(matrix);
-        const res = SudoKu.exactCoverMatrix2SudoKuMatrix(matrix, dancingLinks.ans, sudoKu);
-        console.log(res);
-        if (SudoKu.verify(res)) {
-            console.log('数独答案验证通过!');
+        if (dancingLinks.hasAns) {
+            const res = SudoKu.exactCoverMatrix2SudoKuMatrix(matrix, dancingLinks.ans, sudoKu);
+            console.log(res);
+            if (SudoKu.verify(res)) {
+                console.log("数独答案验证通过!");
+                return res;
+            }
+            else {
+                console.log("数独答案不正确!");
+                return null;
+            }
         }
         else {
-            console.log('数独答案不正确!');
+            return null;
         }
+    }
+    /**
+     * 随机放入11个数，1到9，然后1到2，然后求解，得到一幅随机数独完成图（有解的概率约99.7%）
+     */
+    static getSudoKu() {
+        const sudoKu = SudoKu.buildEmptySudoKu();
+        for (let i = 0; i < 11; i++) {
+            const row = SudoKu.random0To8();
+            const column = SudoKu.random0To8();
+            sudoKu[row][column] = (i % 9) + 1;
+        }
+        if (!SudoKu.solve(sudoKu)) {
+            return SudoKu.getSudoKu();
+        }
+        return sudoKu;
+    }
+    /**
+     * 随机返回0到8
+     */
+    static random0To8() {
+        return Math.floor(Math.random() * 9);
     }
 }
 function test() {
@@ -137,6 +165,7 @@ function test() {
         [0, 0, 0, 0, 0, 5, 7, 3, 6],
         [0, 0, 3, 0, 6, 2, 4, 5, 0],
     ];
-    new SudoKu(testData);
+    // SudoKu.solve(testData);
+    console.log("随机生成一个数独:", SudoKu.getSudoKu());
 }
 test();
