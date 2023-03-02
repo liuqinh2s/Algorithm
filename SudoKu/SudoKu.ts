@@ -129,12 +129,9 @@ class SudoKu {
         dancingLinks.ans,
         sudoKu
       );
-      console.log(res);
       if (SudoKu.verify(res)) {
-        console.log("数独答案验证通过!");
         return res;
       } else {
-        console.log("数独答案不正确!");
         return null;
       }
     } else {
@@ -152,6 +149,7 @@ class SudoKu {
       const column = SudoKu.random0To8();
       sudoKu[row][column] = (i % 9) + 1;
     }
+    console.log("随机图：", sudoKu);
     const res = SudoKu.solve(sudoKu);
     return res ? res : SudoKu.getCompleteSudoKu();
   }
@@ -159,7 +157,17 @@ class SudoKu {
   /**
    * 通过一个完整的数独图，挖洞生成一个简单的数独图
    */
-  static getEasySudoKu(): Array<Array<number>> {}
+  static getEasySudoKu(): Array<Array<number>> {
+    const sudoKu = SudoKu.getCompleteSudoKu();
+    for (let i = 0; i < 9; i++) {
+      for (let j = 0; j < 9; j++) {
+        if (Math.random() > 0.4) {
+          sudoKu[i][j] = 0;
+        }
+      }
+    }
+    return sudoKu;
+  }
 
   /**
    * 随机返回0到8
@@ -183,7 +191,7 @@ function test() {
     [0, 0, 3, 0, 6, 2, 4, 5, 0],
   ];
   // SudoKu.solve(testData);
-  console.log("随机生成一个数独:", SudoKu.getSudoKu());
+  console.log("随机生成一个数独:", SudoKu.getEasySudoKu());
 }
 
 test();

@@ -116,13 +116,10 @@ class SudoKu {
         const dancingLinks = new DancingLinks(sudoKu).inputMatrix(matrix);
         if (dancingLinks.hasAns) {
             const res = SudoKu.exactCoverMatrix2SudoKuMatrix(matrix, dancingLinks.ans, sudoKu);
-            console.log(res);
             if (SudoKu.verify(res)) {
-                console.log("数独答案验证通过!");
                 return res;
             }
             else {
-                console.log("数独答案不正确!");
                 return null;
             }
         }
@@ -133,15 +130,28 @@ class SudoKu {
     /**
      * 随机放入11个数，1到9，然后1到2，然后求解，得到一幅随机数独完成图（有解的概率约99.7%）
      */
-    static getSudoKu() {
+    static getCompleteSudoKu() {
         const sudoKu = SudoKu.buildEmptySudoKu();
         for (let i = 0; i < 11; i++) {
             const row = SudoKu.random0To8();
             const column = SudoKu.random0To8();
             sudoKu[row][column] = (i % 9) + 1;
         }
-        if (!SudoKu.solve(sudoKu)) {
-            return SudoKu.getSudoKu();
+        console.log("随机图：", sudoKu);
+        const res = SudoKu.solve(sudoKu);
+        return res ? res : SudoKu.getCompleteSudoKu();
+    }
+    /**
+     * 通过一个完整的数独图，挖洞生成一个简单的数独图
+     */
+    static getEasySudoKu() {
+        const sudoKu = SudoKu.getCompleteSudoKu();
+        for (let i = 0; i < 9; i++) {
+            for (let j = 0; j < 9; j++) {
+                if (Math.random() > 0.4) {
+                    sudoKu[i][j] = 0;
+                }
+            }
         }
         return sudoKu;
     }
@@ -166,6 +176,6 @@ function test() {
         [0, 0, 3, 0, 6, 2, 4, 5, 0],
     ];
     // SudoKu.solve(testData);
-    console.log("随机生成一个数独:", SudoKu.getSudoKu());
+    console.log("随机生成一个数独:", SudoKu.getEasySudoKu());
 }
 test();

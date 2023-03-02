@@ -19,13 +19,6 @@ export class DancingLinks {
     inputMatrix(matrix) {
         const head = this.build(matrix);
         this.hasAns = this.dance(head, head.down);
-        if (this.hasAns) {
-            console.log("答案:", this.ans);
-        }
-        else {
-            this.ans = [];
-            console.log("No Answer");
-        }
         return this;
     }
     inputSet(X, S) {
@@ -41,15 +34,6 @@ export class DancingLinks {
      */
     dance(head, p) {
         if (head.right === head || head.down === head) {
-            // console.log(
-            //   "矩阵为空:",
-            //   "宽是0:",
-            //   head.right === head,
-            //   "高是0:",
-            //   head.down === head
-            // );
-            // console.log("目前答案:", this.ans);
-            // SudoKu.exactCoverMatrix2SudoKuMatrix(this.matrix, this.ans, this.sudoKu);
             // 矩阵为空
             if (this.isAllOne) {
                 return true;
@@ -64,15 +48,13 @@ export class DancingLinks {
         }
         let res = false;
         while (p !== head) {
-            // console.log(p.row);
             this.ans.push(p.row);
             const matrixWidth = this.getMatrixWidth(head);
             this.isAllOne = matrixWidth === this.getMatrixWidth(p);
             // 删除操作
             const deleteNodes = this.remove(p, head);
             this.deleteNodes.push(deleteNodes);
-            console.log("删除后:", "宽:", this.getMatrixWidth(head), " 高:", this.getMatrixHeight(head), this.ans);
-            this.showMatrix(head);
+            // this.showMatrix(head);
             if (this.dance(head)) {
                 res = true;
                 break;
@@ -80,15 +62,6 @@ export class DancingLinks {
             this.ans.pop();
             // 恢复操作
             this.recover(this.deleteNodes.pop());
-            // console.log(
-            //   "恢复后:",
-            //   "宽:",
-            //   this.getMatrixWidth(head),
-            //   " 高:",
-            //   this.getMatrixHeight(head),
-            //   this.ans
-            // );
-            // this.showMatrix(head);
             p = p.down;
         }
         return res;
@@ -202,7 +175,6 @@ export class DancingLinks {
             }
             res.push(row);
         }
-        // console.log(res);
         return res;
     }
     /**
@@ -211,7 +183,6 @@ export class DancingLinks {
      */
     getRow(rowHead) {
         const matrixWidth = this.getMatrixWidth(this.head);
-        // console.log("matrixWidth:", matrixWidth);
         if (matrixWidth < 1) {
             return [];
         }
@@ -231,7 +202,6 @@ export class DancingLinks {
      */
     getColumn(columnHead) {
         const matrixHeight = this.getMatrixHeight(this.head);
-        // console.log("matrixHeight:", matrixHeight);
         if (matrixHeight < 1) {
             return [];
         }
@@ -265,7 +235,6 @@ export class DancingLinks {
      * @param node 一行中的某个节点
      */
     removeAllColumn(node) {
-        // console.log("removeAllColumn");
         let p = this.rowHeadArray[node.row];
         const res = [];
         while (true) {
@@ -283,7 +252,6 @@ export class DancingLinks {
      * @param node
      */
     removeAllRow(node) {
-        // console.log("removeAllRow");
         let p = this.columnHeadArray[node.column];
         const res = [];
         while (true) {
@@ -494,7 +462,6 @@ export class DancingLinks {
      * @param node 当前行的某个节点
      */
     getLinkedListLength(node, direction) {
-        // console.log("getLinkedListLength");
         if (!node) {
             return 0;
         }
@@ -514,7 +481,6 @@ export class DancingLinks {
      * @param head 当前行的某个节点
      */
     getMatrixWidth(head) {
-        // console.log("getMatrixWidth");
         return this.getLinkedListLength(head, Direction.horizontal) - 1;
     }
     /**
@@ -522,7 +488,6 @@ export class DancingLinks {
      * @param head 当前行的某个节点
      */
     getMatrixHeight(head) {
-        // console.log("getMatrixHeight");
         return this.getLinkedListLength(head, Direction.vertical) - 1;
     }
 }
@@ -597,4 +562,4 @@ function test() {
         return JSON.stringify(arr1.sort()) === JSON.stringify(arr2.sort());
     }
 }
-test();
+// test();
