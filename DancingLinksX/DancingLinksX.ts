@@ -27,6 +27,7 @@ enum Direction {
 }
 
 export class DancingLinks {
+  timer; // 计时器
   sudoKu; // 数独矩阵
   matrix; // 矩阵
   head; // 表头
@@ -43,7 +44,8 @@ export class DancingLinks {
 
   inputMatrix(matrix: Array<Array<0 | 1>>) {
     const head = this.build(matrix);
-    this.hasAns = this.dance(head, head.down);
+    this.timer = new Date().getTime();
+    this.dance(head, head.down);
     return this;
   }
 
@@ -63,6 +65,10 @@ export class DancingLinks {
     if (head.right === head || head.down === head) {
       // 矩阵为空
       if (this.isAllOne) {
+        this.hasAns = true;
+        return true;
+      } else if (new Date().getTime() - this.timer > 1000) {
+        this.hasAns = false;
         return true;
       } else {
         return false;
@@ -82,6 +88,7 @@ export class DancingLinks {
       const deleteNodes = this.remove(p, head);
       this.deleteNodes.push(deleteNodes);
       // this.showMatrix(head);
+      // this.showMatrixT(head);
       if (this.dance(head)) {
         res = true;
         break;
@@ -155,7 +162,7 @@ export class DancingLinks {
      * 生成列头
      */
     function newColumnHead(matrix: Array<Array<1 | 0>>, head) {
-      const columnHeadArray: Array<any> = [];
+      const columnHeadArray = {};
       for (let i = 0; i < matrix[0].length; i++) {
         const node: any = {
           column: i,
@@ -168,7 +175,7 @@ export class DancingLinks {
         node.down = node;
         head.left.right = node;
         head.left = node;
-        columnHeadArray.push(node);
+        columnHeadArray[i] = node;
       }
       return columnHeadArray;
     }
@@ -176,7 +183,7 @@ export class DancingLinks {
      * 生成行头
      */
     function newRowHead(matrix: Array<Array<1 | 0>>, head) {
-      const rowHeadArray: Array<any> = [];
+      const rowHeadArray = {};
       for (let i = 0; i < matrix.length; i++) {
         const node: any = {
           row: i,
@@ -189,7 +196,7 @@ export class DancingLinks {
         node.left = node;
         head.up.down = node;
         head.up = node;
-        rowHeadArray.push(node);
+        rowHeadArray[i] = node;
       }
       return rowHeadArray;
     }
@@ -263,13 +270,14 @@ export class DancingLinks {
    * @param node 一行中的某个节点
    */
   removeAllColumn(node: DancingLinksNode) {
-    let p = this.rowHeadArray[node.row];
+    const rowHead = this.rowHeadArray[node.row];
+    let p = rowHead;
     const res: any = [];
     while (true) {
       const deleteNodes = this.removeColumn(p);
       res.push(...deleteNodes);
       p = p.right;
-      if (p === node) {
+      if (p === rowHead) {
         break;
       }
     }
@@ -280,7 +288,8 @@ export class DancingLinks {
    * @param node
    */
   removeAllRow(node: DancingLinksNode) {
-    let p = this.columnHeadArray[node.column];
+    const columnHead = this.columnHeadArray[node.column];
+    let p = columnHead;
     const res: any = [];
     while (true) {
       const deleteNodes = this.removeRow(p);
@@ -411,7 +420,7 @@ export class DancingLinks {
     while (curNode !== head) {
       curNode = curNode.right;
       const length = this.getLinkedListLength(curNode, Direction.vertical) - 1;
-      if (min > length) {
+      if (length > 0 && min > length) {
         min = length;
         minColumnHead = curNode;
       }
@@ -476,12 +485,29 @@ export class DancingLinks {
     let p = head.down;
     let res: any = [];
     while (p !== head) {
-      const rowCount = this.getMatrixWidth(head);
+      const rowCount = this.getMatrixHeight(head);
       if (rowCount > 0) {
         const row = this.getRow(p);
         res.push(row);
       }
       p = p.down;
+    }
+    console.log(res);
+  }
+  /**
+   * 按列打印（转置矩阵）
+   * @param head
+   */
+  showMatrixT(head) {
+    let p = head.right;
+    let res: any = [];
+    while (p !== head) {
+      const columnCount = this.getMatrixWidth(head);
+      if (columnCount > 0) {
+        const column = this.getColumn(p);
+        res.push(column);
+      }
+      p = p.right;
     }
     console.log(res);
   }
