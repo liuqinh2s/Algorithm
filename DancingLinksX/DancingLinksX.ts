@@ -28,6 +28,7 @@ enum Direction {
 
 export class DancingLinks {
   timer; // 计时器
+  time; // 限制在多久时间内解出，单位ms
   sudoKu; // 数独矩阵
   matrix; // 矩阵
   head; // 表头
@@ -44,8 +45,7 @@ export class DancingLinks {
 
   inputMatrix(matrix: Array<Array<0 | 1>>) {
     const head = this.build(matrix);
-    this.timer = new Date().getTime();
-    this.dance(head, head.down);
+    this.dance(head);
     return this;
   }
 
@@ -61,23 +61,26 @@ export class DancingLinks {
    * @param p 选中某行，默认选择1最少的列的头一行
    * @returns
    */
-  dance(head, p?) {
+  dance(head) {
     if (head.right === head || head.down === head) {
       // 矩阵为空
       if (this.isAllOne) {
         this.hasAns = true;
         return true;
-      } else if (new Date().getTime() - this.timer > 1000) {
+      } else if (
+        this.timer &&
+        this.time &&
+        new Date().getTime() - this.timer > this.time
+      ) {
         this.hasAns = false;
         return true;
       } else {
         return false;
       }
     }
-    if (!p) {
-      const columnHead = this.getMinColumn(head);
-      p = this.getRowHead(columnHead.down);
-    }
+
+    const columnHead = this.getMinColumn(head);
+    let p = this.getRowHead(columnHead.down);
 
     let res = false;
     while (p !== head) {

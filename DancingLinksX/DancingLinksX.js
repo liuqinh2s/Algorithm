@@ -18,8 +18,7 @@ export class DancingLinks {
     }
     inputMatrix(matrix) {
         const head = this.build(matrix);
-        this.timer = new Date().getTime();
-        this.dance(head, head.down);
+        this.dance(head);
         return this;
     }
     inputSet(X, S) {
@@ -33,14 +32,16 @@ export class DancingLinks {
      * @param p 选中某行，默认选择1最少的列的头一行
      * @returns
      */
-    dance(head, p) {
+    dance(head) {
         if (head.right === head || head.down === head) {
             // 矩阵为空
             if (this.isAllOne) {
                 this.hasAns = true;
                 return true;
             }
-            else if (new Date().getTime() - this.timer > 1000) {
+            else if (this.timer &&
+                this.time &&
+                new Date().getTime() - this.timer > this.time) {
                 this.hasAns = false;
                 return true;
             }
@@ -48,10 +49,8 @@ export class DancingLinks {
                 return false;
             }
         }
-        if (!p) {
-            const columnHead = this.getMinColumn(head);
-            p = this.getRowHead(columnHead.down);
-        }
+        const columnHead = this.getMinColumn(head);
+        let p = this.getRowHead(columnHead.down);
         let res = false;
         while (p !== head) {
             this.ans.push(p.row);

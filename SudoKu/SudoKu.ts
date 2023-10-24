@@ -122,7 +122,10 @@ export class SudoKu {
   static solve(sudoKu: Array<Array<number>>) {
     const matrix = [SudoKu.sudoKu2ExactCoverLine(sudoKu)];
     SudoKu.build(matrix);
-    const dancingLinks = new DancingLinks(sudoKu).inputMatrix(matrix);
+    const dancingLinks = new DancingLinks(sudoKu);
+    dancingLinks.timer = new Date().getTime();
+    dancingLinks.time = 1000;
+    dancingLinks.inputMatrix(matrix);
     if (dancingLinks.hasAns) {
       const res = SudoKu.exactCoverMatrix2SudoKuMatrix(
         matrix,
@@ -188,7 +191,7 @@ export function test() {
     [2, 0, 0, 0, 0, 1, 0, 0, 0],
     [0, 7, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 9, 0, 0, 0, 0, 3, 0, 0]
+    [0, 9, 0, 0, 0, 0, 3, 0, 0],
   ];
   SudoKu.solve(testData);
   console.log("随机生成一个数独:", SudoKu.getEasySudoKu());
